@@ -1,0 +1,105 @@
+/*Assessment*/
+.assessment{
+    /*margin-top: 10px;*/
+    position: relative;
+}
+.assessment span{
+    display: inline-block !important;
+}
+.assessment .btn{
+    background-color: #eeeeee;
+    color: #757575;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: inline-block;
+}
+.assessment .btn:hover{
+    background-color: #008c23;
+    color: #ffffff;
+}
+.assessment .btn.btn-green{
+    color: #008c23;
+}
+.assessment .btn.btn-green:hover{
+    color: #ffffff;
+}
+.assessment .info-popover{
+    display: inline-block !important;
+    color: #a6a6a6 !important;
+    font-size: 14px !important;
+}
+.assessment .info-popover:hover i{
+    cursor: pointer;
+    color: #424242;
+}
+.assessment .mpover{
+    width: 350px;
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border: none;
+    box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.45);
+    z-index: 999;
+}
+.assessment .mpover:after {
+    display: none;
+}
+.assessment .mpover h4{
+    font-size: 18px;
+    font-weight: normal;
+    margin: 0px 0px 10px 0px;
+    color: #212121;
+}
+.assessment .mpover p{
+    font-size: 14px;
+    color: #666666;
+}
+.assessment .mpover a{
+    text-transform: uppercase;
+    display: block;
+}
+.assessment .mpover a:hover{
+    text-decoration: none;
+}
+.assessment .mpover button.close span{
+    font-size: 22px !important;
+    right: 10px;
+    top: 10px;
+}
+.assessment span.pending{
+    color: #ef6c00 !important;
+}
+.assessment span.live{
+    color: #689f38 !important;
+}
+.tab .panel-body .row.bs span i{
+    font-size: 16px;
+    vertical-align: sub;
+}
+.assessment .layer-mask{
+    display: none;
+}
+.assessment .mpover .bottom-arrow {
+        width: 0;
+        height: 0;
+        position: absolute;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #ffffff;
+        margin-bottom: -10px;
+        left: 95px;
+        bottom: 3px;
+}
+.divider-vertical{
+    height: 16px;
+    border: 1px solid #bdbdbd;
+    width: 1px;
+    display: inline-block !important;
+    margin: 0px 8px;
+    vertical-align: bottom;
+}
+.meta-height{
+    height: 20px;
+}
+.assessment span.expired{
+    color: #dd2c00 !important;
+}

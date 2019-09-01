@@ -1,0 +1,110 @@
+#feedback h4{
+  font-size: 15px;
+  font-weight: bold;
+  padding: 0;
+}
+#feedback {
+  z-index: 99999;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  min-height: 250px;
+  margin-left: -3px;
+  margin-bottom: -3px;
+}
+
+#feedback-form {
+  float: left;
+  width: 540px;
+  height: 100%;
+  z-index: 1000;
+  padding-left: 5px;
+  padding-right: 10px;
+  border: none;
+  box-shadow: none;
+  display: none;
+  border-radius: 0px;
+  border: 2px solid #b32d7d;
+}
+#feedback .panel{
+  min-height: 200px;
+}
+#feedback-tab {
+  float: right;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  width: 110px;
+  height: 42px;
+  background-color: rgba(179, 45, 125, 0.6);
+  margin-top: 34px;
+  margin-left: -42px;
+  padding-top: 5px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+  transition-duration: .5s;
+}
+
+#feedback-tab:hover{
+  background-color: #b32d7d;
+  transition-duration: .5s;
+}
+#feedback-tab.active{
+  background-color: #b32d7d;
+}
+#feedback-form textarea {
+  resize: none;
+}
+#feedback .feedback-msg{
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 4px;
+  background: #fff;
+  color: #B32D7D;
+  display: none;
+  text-align: center;
+  margin-top: 60px;
+}
+
+ @media only screen and (max-width: 767px){
+	   #feedback-form {
+		   width: 90%;
+		   overflow: hidden;
+	   }
+	   #feedback-form .radio-inline{
+		   display: block;
+		   margin-left: 0;
+	   }
+	   #feedback .panel {
+		   max-height: 250px;
+		   overflow: scroll;
+	   }
+	   #feedback-tab.rotate{
+		   transform: rotate(0deg);
+		   bottom: -58px;
+		   left: -52px;
+		   border-radius: 2px 2px 0px 0px;
+		   font-weight: bold;
+		   position: relative;
+	   }
+	   #feedback-tab {
+		   position: absolute;
+		   left: 20px;
+		   top: -90px;
+		   bottom: 0px;
+		   width: 90px;
+		   height: 30px;
+		   padding-top: 4px;
+		   font-size: 12px;
+		   height: 25px;
+		   font-weight: bold;
+		   width: 70px;
+	   }
+   }

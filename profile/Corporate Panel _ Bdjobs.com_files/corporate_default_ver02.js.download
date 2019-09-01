@@ -1,0 +1,901 @@
+// Progress bar
+$(function () {
+    var $jpa = $('.progress-pie-chart-j'), percent = parseInt($jpa.data('percent')), deg = 360 * percent / 100;
+    if (percent > 50) {
+        $jpa.addClass('gt-50');
+    }
+    $('.jpa-progress-fill').css('transform', 'rotate(' + deg + 'deg)');
+    $('.jpa-percents span').html(percent + '%');
+});
+
+$(function () {
+    var $cba = $('.progress-pie-chart-c'), percent = parseInt($cba.data('percent')), deg = 360 * percent / 100;
+    if (percent > 50) {
+        $cba.addClass('gt-50');
+    }
+    $('.cba-progress-fill').css('transform', 'rotate(' + deg + 'deg)');
+    $('.cba-percents span').html(percent + '%');
+});
+
+var strActionName = "";
+
+// Responsive tab
+/*(function($){
+             fakewaffle.responsiveTabs(['xs', 'sm']);
+         })(jQuery)
+*/
+
+var cprpp = 3
+function GetXmlHttpObject()
+{
+	var xmlHttp=null;
+	try
+	{
+		// Firefox, Opera 8.0+, Safari
+		xmlHttp=new XMLHttpRequest();
+	}
+	catch (e)
+	{
+		// Internet Explorer
+		try
+		{
+		xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
+		}
+		catch (e)
+		{
+			xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+	}
+	return xmlHttp;
+} 
+
+function SetArchievJob(IntID,SelectedRow)
+{
+	tmpConfirm = confirm("Do you want to archive this job?")
+	
+	if (tmpConfirm)
+	{
+		xmlHttp=GetXmlHttpObject()
+		if (xmlHttp==null)
+		{
+			//alert ("Your browser does not support AJAX!");
+			window.location.href=gURL;
+			return;
+		} 
+	
+		
+		url="archivejob.asp?id="+IntID;	
+		//alert(IntID);
+		
+		LoadType = "Action";
+		LoadStatus(LoadType);
+		ActionRow = SelectedRow;
+		xmlHttp.onreadystatechange=stateChanged;
+		xmlHttp.open("GET",url,true);
+		xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+		xmlHttp.send(url);
+	}
+		
+	
+}
+
+function SetUnArchievJob(IntID,SelectedRow)
+{
+	tmpConfirm = confirm("Do you want to unarchive this job?")
+	
+	if (tmpConfirm)
+	{
+		xmlHttp=GetXmlHttpObject()
+		if (xmlHttp==null)
+		{
+			//alert ("Your browser does not support AJAX!");
+			window.location.href=gURL;
+			return;
+		} 
+	
+		
+		url="unarchivejob.asp?id="+IntID;	
+		//alert(IntID);
+		
+		LoadType = "UnArchive";
+		LoadStatus(LoadType);
+		ActionRow = SelectedRow;
+		xmlHttp.onreadystatechange=stateChanged;
+		xmlHttp.open("GET",url,true);
+		xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+		xmlHttp.send(url);
+	}
+		
+	
+}
+
+function setReloadJobBoard (spg,pagetype)
+{
+	//alert(1)
+	document.getElementById("hidPgType").value = pagetype;
+	document.getElementById("hidPgNo").value = spg;
+	strActionName = pagetype;
+	CorporateJoblist();
+}
+
+function CorporateJoblist()
+{
+	pgNo = document.getElementById("hidPgNo").value;
+	pgType = document.getElementById("hidPgType").value;
+	jobTitle = document.getElementById("txtJobTile").value;
+	dtFrom = document.getElementById("hidDtFrom").value;
+	dtTo = document.getElementById("hidDtTo").value;
+	
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		//alert ("Your browser does not support AJAX!");
+		window.location.href=gURL;
+	  	return;
+	}
+	url = "corporate_joblist_common_init.asp?pg=" + pgNo + "&pt=" + pgType + "&jobTile=" + jobTitle + "&dateFr=" + dtFrom + "&DateTo=" + dtTo + "&actName=" + strActionName;;
+    strActionName = "";
+    LoadType = "JobManagement";
+	LoadStatus(LoadType);
+	xmlHttp.onreadystatechange=stateChanged;
+	xmlHttp.open("GET",url,true);
+	xmlHttp.setRequestHeader("Content-length", url.length); 
+	xmlHttp.send(url);
+}
+function JAMGoPage (spg,pagetype)
+{
+	 document.getElementById("hidPgType").value = pagetype;
+	 document.getElementById("hidPgNo").value = spg;
+	 if (strActionName != "jpp")
+	     strActionName = "pg";
+	 CorporateJoblist();
+}
+
+function FJobTitle()
+{
+	tmpJT = document.getElementById("txtJobTile").value;
+	
+	if (tmpJT.trim() == "")
+	{
+		document.getElementById("txtJobTile").value = ""
+		alert("Please enter job title for searching job.");
+	}
+	else
+	{
+	    document.getElementById("hidPgNo").value = 1;
+	    strActionName = "s";
+		CorporateJoblist();
+	}
+}
+
+function stateChanged() 
+{ 
+	var strResponseText;
+	if (xmlHttp.readyState==4)
+	{ 
+		if(xmlHttp.status == 200)
+		{
+			if(LoadType=="Action")
+			{				
+				strResponseText=xmlHttp.responseText
+				if(strResponseText.indexOf("checkbox")>0)
+				{
+					alert("You have to select a checkbox");
+				}
+				else
+				{				
+					//alert("Action has been completed successfully.");
+					//document.getElementById("ActionResult").innerHTML=strResponseText;	
+					/*if (strResponseText.indexOf("archived") == -1)
+					{
+						strType = "failuer"
+					}
+					else
+					{
+						strType = "success"
+					}*/
+					//CreateMessageBox (strType, strResponseText, "TmpMessage", 375,-1,"")
+					
+					fnActionRow (ActionRow)
+					ACount = parseInt(document.getElementById("AJA").innerHTML);
+					document.getElementById("AJA").innerHTML = ACount+1
+					LCount = parseInt(document.getElementById("LJA").innerHTML)
+					document.getElementById("LJA").innerHTML = LCount-1
+				}
+			}
+			else if (LoadType=="Job")
+			{
+				strResponseText=xmlHttp.responseText
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				//document.getElementById("ActionResult").innerHTML=xmlHttp.responseText;				
+				/*if (strResponseText.indexOf("Operation") == -1)
+				{
+					strType = "failuer"
+				}
+				else
+				{
+					strType = "success"
+				}*/
+				//CreateMessageBox (strType, strResponseText, "TmpMessage", 375,-1,"")
+				fnActionRow (ActionRow)
+				
+				if (ActType == 1)
+				{
+					LCount = parseInt(document.getElementById("LJA").innerHTML)
+					DCount = parseInt(document.getElementById("DJA").innerHTML)
+					document.getElementById("LJA").innerHTML = LCount-1
+					document.getElementById("DJA").innerHTML = DCount+1
+				}
+				else
+				{
+					LCount = parseInt(document.getElementById("LJA").innerHTML)
+					DCount = parseInt(document.getElementById("DJA").innerHTML)
+					document.getElementById("LJA").innerHTML = LCount+1
+					document.getElementById("DJA").innerHTML = DCount-1
+				}
+				
+			}
+			else if (LoadType=="DJob")
+			{
+				strResponseText=xmlHttp.responseText
+				/*
+				if (strResponseText.indexOf("deleted") == -1)
+				{
+					strType = "failuer"
+				}
+				else
+				{
+					strType = "success"
+				}*/
+				//CreateMessageBox (strType, strResponseText, "TmpMessage", 375,-1,"")
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				//document.getElementById("ActionResult").innerHTML=xmlHttp.responseText;				
+				fnActionRow(ActionRow)
+				DCount = parseInt(document.getElementById("DJA").innerHTML)
+				document.getElementById("DJA").innerHTML = DCount-1
+				
+				bodyCont= $("#BodyContents").html()
+				if (bodyCont.trim() == "")
+				{
+				    $("#panel-heading").remove();
+					tmps = "<div class='row'><div class='col-md-12'><div class='not-found text-center'><i class='icon-not-found'></i><h1>Sorry, We could not find any job in this page.</h1></div></div></div>"
+					$("#BodyContents").html(tmps);
+					//setReloadJobBoard(1, 'd');
+				}
+				
+				
+			}
+			else if (LoadType == "AJob")
+			{
+			    strResponseText = xmlHttp.responseText;				
+				fnActionRow(ActionRow)
+				DCount = parseInt(document.getElementById("AJA").innerHTML)
+				document.getElementById("AJA").innerHTML = DCount-1
+				
+				bodyCont = $("#BodyContents").html();
+				if (bodyCont.trim() == "")
+				{
+				    $("#panel-heading").remove();
+					tmps = "<div class='row'><div class='col-md-12'><div class='not-found text-center'><i class='icon-not-found'></i><h1>Sorry, We could not find any job in this page.</h1></div></div></div>"
+					$("#BodyContents").html(tmps);
+				}			
+				
+			}
+			else if (LoadType=="UJob")
+			{
+				strResponseText=xmlHttp.responseText
+				
+				if (strResponseText == "1")
+				{
+					//alert(datefromate)
+					//console.log(datefromate)
+					var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+					var d = new Date(datefromate);
+
+    				var FullDate = d.getDate()+" "+  monthNames[d.getMonth()]+" "+d.getFullYear();
+					//console.log(d.getFullYear())
+					document.getElementById("deadlinerow"+ActionRow).innerHTML=" "+FullDate;
+				}
+				else
+				{
+					alert(strResponseText)
+				}
+				
+				
+				/*
+				if (strResponseText.indexOf("deleted") == -1)
+				{
+					strType = "failuer"
+				}
+				else
+				{
+					strType = "success"
+				}*/
+				//CreateMessageBox (strType, strResponseText, "TmpMessage", 375,-1,"")
+			}
+			
+			else if (LoadType=="CorpGraph")
+			{
+				strResponseText=xmlHttp.responseText
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				document.getElementById("CorporateGraph").innerHTML=xmlHttp.responseText;				
+				
+				//fnActionRow (ActionRow)
+			}
+			else if (LoadType=="JobManagement")
+			{
+				strResponseText=xmlHttp.responseText
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				document.getElementById("Joblist").innerHTML=xmlHttp.responseText;	
+				//alert(2)
+				
+				if (document.getElementById("TPPRec"))
+				{
+					document.getElementById("TTPPRec").innerHTML= document.getElementById("TPPRec").innerHTML
+					document.getElementById("TTPPRecHeader").innerHTML= "Jobs per page:"
+				}
+				else
+				{
+					//document.getElementById("TTPPRec").innerHTML=0
+					document.getElementById("TTPPRec").innerHTML= "";
+					document.getElementById("TTPPRecHeader").innerHTML ="";
+				}
+				
+				//alert(3)
+							
+			}
+			else if (LoadType=="Graph")
+			{
+				strResponseText=xmlHttp.responseText
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				document.getElementById("CropGraph").innerHTML=xmlHttp.responseText;				
+			}
+			
+			else if (LoadType=="UnArchive")
+			{
+				strResponseText=xmlHttp.responseText
+				if(strResponseText.indexOf("checkbox")>0)
+				{
+					alert("You have to select a checkbox");
+				}
+				else
+				{				
+					//alert("Action has been completed successfully.");
+					//document.getElementById("ActionResult").innerHTML=strResponseText;	
+					/*if (strResponseText.indexOf("archived") == -1)
+					{
+						strType = "failuer"
+					}
+					else
+					{
+						strType = "success"
+					}*/
+					//CreateMessageBox (strType, strResponseText, "TmpMessage", 375,-1,"")
+					
+					fnActionRow (ActionRow)
+					ACount = parseInt(document.getElementById("AJA").innerHTML);
+					document.getElementById("AJA").innerHTML = ACount-1
+					LCount = parseInt(document.getElementById("LJA").innerHTML)
+					document.getElementById("LJA").innerHTML = LCount+1
+					
+					bodyCont= $("#BodyContents").html()
+					if (bodyCont.trim() == "")
+					{
+						tmps = "<div class='row'><div class='col-md-12'><div class='not-found text-center'><i class='icon-not-found'></i><h1>Sorry, We could not find any job in this page.</h1></div></div></div>"
+						$("#BodyContents").html(tmps)
+						//setReloadJobBoard(1, 'd');
+					}
+				}		
+			}
+			
+			else
+			{
+				/*np=xmlHttp.responseText;
+				//alert(np);
+				nn=window.open();
+				nn.document.write(np);*/
+				
+				strResponseText=xmlHttp.responseText
+				//document.getElementById("Corporate_job_Panel").innerHTML=strResponseText;
+				document.getElementById("SearchedResult").innerHTML=xmlHttp.responseText;				
+			}
+		}
+		else
+		{
+			//alert(xmlHttp.status);
+			alert("Some problem has been occurred. Please try later."); 
+		}
+	}
+} 
+
+function showArchieve(cpg)
+{
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		//alert ("Your browser does not support AJAX!");
+		window.location.href=gURL;
+	  	return;
+	}
+	
+	url="Corporate_ARC_job_board.asp?pg="+cpg;
+	//alert(IntID);
+	LoadType = "Job"
+	xmlHttp.onreadystatechange=stateChanged;
+	xmlHttp.open("GET",url,true);
+	xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+	xmlHttp.send(url);
+}
+
+function RequestJobToDorA(tmpVal,ActionType,pt)
+{
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		//alert ("Your browser does not support AJAX!");
+		window.location.href=gURL;
+	  	return;
+	}
+	
+	url="jobposting_RequestToPublishType.asp?ID="+tmpVal+"&at="+ActionType+"&pT="+pt;
+	//confirm(url);
+	LoadStatus("");
+	LoadType = "Job"
+	
+	xmlHttp.onreadystatechange=stateChanged;
+	xmlHttp.open("GET",url,true);
+	xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+	xmlHttp.send(url);
+}
+
+
+function PublishorDraft (JID,ActionType,SelectedRow)
+{
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		//alert ("Your browser does not support AJAX!");
+		window.location.href=gURL;
+	  	return;
+	}
+	
+	url="jobposting_PublishorDraft.asp?ID="+JID+"&at="+ActionType;
+	//confirm(url);
+	
+	LoadType = "Job"
+	LoadStatus(LoadType);
+	ActionRow = SelectedRow;
+	ActType = ActionType
+	xmlHttp.onreadystatechange=stateChanged;
+	xmlHttp.open("GET",url,true);
+	xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+	xmlHttp.send(url);
+}
+
+function DraftJobDelete (JID,SelectedRow)
+{
+	
+	strConfirm = confirm("Are you sure to delete this job?")
+	
+	if (strConfirm)
+	{
+		xmlHttp=GetXmlHttpObject()
+		if (xmlHttp==null)
+		{
+			//alert ("Your browser does not support AJAX!");
+			window.location.href=gURL;
+			return;
+		}
+		
+		url="DeletedDraftedJob.asp?ID="+JID	//+"&at="+ActionType;
+		//confirm(url);
+		
+		LoadType = "DJob"
+		LoadStatus(LoadType);
+		ActionRow = SelectedRow;
+		xmlHttp.onreadystatechange=stateChanged;
+		xmlHttp.open("GET",url,true);
+		xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+		xmlHttp.send(url);
+	}
+}
+
+function ArchiveJobDelete(JID, SelectedRow) {
+    var strConfirm = confirm("Are you sure to remove this job?");
+    if (strConfirm) {
+        xmlHttp = GetXmlHttpObject()
+        if (xmlHttp == null) {
+            window.location.href = gURL;
+            return;
+        }
+
+        url = "DeleteArchiveJob.asp?jid=" + JID;
+        LoadType = "AJob"
+        LoadStatus(LoadType);
+        ActionRow = SelectedRow;
+        xmlHttp.onreadystatechange = stateChanged;
+        xmlHttp.open("GET", url, true);
+        xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+        xmlHttp.send(url);
+    }
+}
+
+var datefromate = "";
+function UpdateJobDate (JID,dtUpdateDate, SelectedRow)
+{
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		//alert ("Your browser does not support AJAX!");
+		window.location.href=gURL;
+		return;
+	}
+	
+	url="jobupdatedate.asp?ID="+JID+"&udt="+dtUpdateDate;	//+"&at="+ActionType;
+	//confirm(url);
+	
+	LoadType = "UJob"
+	LoadStatus(LoadType);
+	ActionRow = SelectedRow;
+	datefromate = dtUpdateDate
+	xmlHttp.onreadystatechange=stateChanged;
+	xmlHttp.open("GET",url,true);
+	xmlHttp.setRequestHeader("Content-length", url.length); //This line is required for Firefox, only when using POST method
+	xmlHttp.send(url);
+}
+
+function LoadStatus(LoadType) //(strStatus, StatusNumber)
+{	
+	if(LoadType=="Action")
+	{
+		//strLayer="<div align='center' class='style1'>Process is Running. Please wait...</div>";		
+		//document.getElementById("ActionResult").innerHTML = strLayer;
+		/*
+		strLayer="<br><div align='center'>"
+		strLayer+="<span class='style2'><img src='images/ajax_loader.gif' width='50px' height='50px' /></span> "
+		strLayer+="</div>"
+		
+		CreateMessageBox ("processing", strLayer, "TmpMessage", 375,-1,"")		
+		*/
+	}
+	else if (LoadType=="UnArchive")
+	{
+		/*strLayer="<br><div align='center'>"
+		strLayer+="<span class='style2'><img src='images/ajax_loader.gif' width='50px' height='50px' /></span> "
+		strLayer+="</div>"
+		
+		CreateMessageBox ("processing", strLayer, "TmpMessage", 375,-1,"")*/	
+	}
+	else if (LoadType=="JobManagement")
+	{
+		strLayer="<br><div align='center'>"
+		strLayer+="<img src='images/ajax_loader.gif' width='50px' height='50px' /> "
+		strLayer+="</div>"
+		document.getElementById("Joblist").innerHTML = strLayer;
+	}
+	else if (LoadType == "DJob" || LoadType == "AJob")
+	{
+		/*strLayer="<br><div align='center'>"
+		strLayer+="<span class='style2'><img src='images/ajax_loader.gif' width='50px' height='50px' /></span> "
+		strLayer+="</div>"
+		
+		CreateMessageBox ("processing", strLayer, "TmpMessage", 375,-1,"")	*/
+	}
+	else if (LoadType=="UJob")
+	{
+		
+	}
+	else if (LoadType=="Job")
+	{
+		/*strLayer="<br><div align='center'>"
+		strLayer+="<span class='style2'><img src='images/ajax_loader.gif' width='50px' height='50px' /></span> "
+		strLayer+="</div>"
+		
+		CreateMessageBox ("processing", strLayer, "TmpMessage", 375,-1,"")*/	
+	}
+	
+	else
+	{
+		strLayer="<br><div align='center'>"
+		strLayer+="<span class='style2'><img src='images/ajax_loader.gif' width='50px' height='50px' /></span> "
+		strLayer+="</div>"
+		document.getElementById("ActionResult").innerHTML = strLayer;
+		//location.href="#setPosition";
+		//alert(location.href);
+	}	
+}
+function setPerpageRecord(pt, TRec) {
+    cprpp = TRec;
+	var newDate = addDays(new Date(), 7);
+	document.cookie = "CDRPP=" + cprpp + "; expires=" + newDate + "; path=/";
+	strActionName = "jpp";
+    JAMGoPage(1, pt);
+}
+function addDays(theDate, days) {
+    return new Date(theDate.getTime() + days*24*60*60*1000);
+}
+function fnActionRow(strID)
+{
+	//document.getElementById("jdtr"+strID).style.display="none";
+	$("#jdtr"+strID).remove();
+	//document.getElementById("jdtr"+strID).style.backgroundColor= "#CEDFE8";
+}
+
+function livepouse(livestatus, jobid, rowid)
+{
+	if (livestatus=="Pasue")
+	{
+		msg = confirm("Your live job will be paused and will not be visible to candidates until you make it Live again. Are you sure?")
+	}
+	else
+	{
+		msg = confirm("Your paused job will be Live and visible to candidates. Are you sure?")
+	}
+	
+	if (msg)
+	{
+	
+		//strurl= "applicant_list_action.asp?actype="+ActionType+"&jid="+JobId+"&appids="+SelectedId+"&reqf="+aJobType;
+		
+		strurl= "JobLiveOrPaused.asp?Action="+livestatus+"&JobId="+jobid;
+		
+	   ajaxObject_xmlhttp = GetXmlHttpObject() ;
+	   ajaxObject_xmlhttp.onreadystatechange = function()
+		{
+			if ( ajaxObject_xmlhttp.readyState == 4 && ajaxObject_xmlhttp.status == 200 )//.statusText == "OK" 
+			{
+				strResponseText = ajaxObject_xmlhttp.responseText
+				if (strResponseText == "1")
+				{
+					if (livestatus == "Pasue")
+					{
+						
+						if (msg)
+						{
+							document.getElementById("jobStatus1"+rowid).style.display = "none"
+							document.getElementById("jobStatus2"+rowid).style.display = "inline-block"
+						}
+						else
+						{
+							document.getElementById("jobStatus1"+rowid).style.display = "inline-Block"
+							document.getElementById("jobStatus2"+rowid).style.display = "None"
+						}
+					}
+					else
+					{
+						//msg = confirm("Are you sure to "+livestatus+" this job?")
+						if (msg)
+						{
+							document.getElementById("jobStatus2"+rowid).style.display = "none"
+							document.getElementById("jobStatus1"+rowid).style.display = "inline-block"
+						}
+						else
+						{
+							document.getElementById("jobStatus2"+rowid).style.display = "inline-Block"
+							document.getElementById("jobStatus1"+rowid).style.display = "None"
+						}
+					}
+				}
+			}
+		}
+		
+		ajaxObject_xmlhttp.open("GET",strurl,true);
+		ajaxObject_xmlhttp.send();
+	}
+}
+
+
+
+
+// Date selector
+$(document).ready(function(){
+    /*$(".change-btn").on("click",function(){
+        rwn = $(this).attr("rwn")
+		$("#single-date"+rwn).slideDown('slow');
+    });
+	*/
+	 $(document).on('click', ".change-btn", function (){
+		 rwn = $(this).attr("rwn")
+		$("#single-date"+rwn).slideDown('slow');
+		 });
+		 
+	$(document).on('click', ".btn.cancel", function (){
+        rwn = $(this).attr("rwn")
+		$("#single-date"+rwn).slideUp('slow');
+    });
+	$(document).on('click', ".apply", function (){
+        rwn = $(this).attr("rwn")
+		$("#single-date"+rwn).slideUp('slow');
+    });
+	
+	
+	
+});
+/*
+$(document).ready(function(){
+    $(".btn.cancel").on("click",function(){
+        $(".single-date").slideUp('slow');
+    });
+});
+*/
+
+
+// Date Range
+$(document).ready(function() {
+  $('input[name="daterange"]').daterangepicker({
+        showDropdowns: true,
+        showValue: true,
+        "opens": "left"
+  });
+});
+
+$('input[name="daterange"]').daterangepicker();
+
+/*
+$(document).ready(function() {
+    $('input[name="singledate"]').daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true
+    });
+});
+*/
+
+$(document).ready(function() {
+	$(document).on('click','input[name=singledate]',function(){
+		$(this).daterangepicker({
+			singleDatePicker: true,
+			showDropdowns: true
+		}).blur().focus();
+	});
+});
+
+
+$(document).ready(function() {
+    $('.applyBtn').on("click", function() {
+        $("#hidDtFrom").val($("#calDateFr").val());
+        $("#hidDtTo").val($("#calDateTo").val());
+        strActionName = "ad";
+        CorporateJoblist();
+    });
+});
+$(document).ready(function() {
+    $('.cancelBtn').on("click", function() {
+        $("#hidDtFrom").val('');
+        $("#hidDtTo").val('');
+        $("#calDateFr").val('');
+        $("#calDateTo").val('');
+        $("#daterange").val('');
+        strActionName = "cd";
+        CorporateJoblist();
+    });
+});
+$(document).ready(function() {
+	//$('.MatchVal').on("mouseover",function(){
+	//mouseover
+	$(document).on('mouseover','.MatchVal',function(){
+		
+		tval = $(this).html()
+		tval = tval.replace(/,/g, "")
+		jid= $(this).parent().attr("jid")
+		jids= $(this).parent().attr("jids")
+		rw=  $(this).parent().attr("rw")
+		isSetToolTip = $("#mpover"+rw).html()
+		if (isSetToolTip.trim() == "")
+		{
+			if (parseInt(tval)> 0 )
+			{
+				
+				strurl = ""
+				if (jids == "a")
+				{
+					strurl= "JobFilters_arc.asp?JobId="+jid;
+				}
+				else
+				{
+					strurl= "JobFilters.asp?JobId="+jid;
+				}
+				if (strurl != "")
+				{
+					ajaxObject_xmlhttp = GetXmlHttpObject() ;
+					ajaxObject_xmlhttp.onreadystatechange = function()
+					{
+						if ( ajaxObject_xmlhttp.readyState == 4 && ajaxObject_xmlhttp.status == 200 )
+						{
+							strResponseText = ajaxObject_xmlhttp.responseText
+							
+							 $("#mpover"+rw).html(strResponseText)
+							 $("#mpover"+rw).fadeIn('300');
+						}
+					}
+					ajaxObject_xmlhttp.open("GET",strurl,true);
+					ajaxObject_xmlhttp.send();
+				}
+				
+			}
+		}
+		else
+		{
+			 $("#mpover"+rw).fadeIn('300');
+		}
+	});
+	$(document).on('mouseout','.MatchVal',function(){
+		rw=  $(this).parent().attr("rw")
+		$("#mpover"+rw).fadeOut('300');
+		});
+	
+});
+//$(this).attr("rwn")
+$(document).on("click", ".assessment.not-expended .info-popover .icon-question", function () {
+    $(".mpover").fadeOut();
+    $(".expended").removeClass("expended").addClass("not-expended");
+    rwNumber = $(this).attr("amntsl");
+    //$(this).parents(".assessment").find(".mpover").fadeIn();
+    $("#amnt" + rwNumber).css("left", ($(this).position().left - 95) + "px").fadeIn();
+    if ($(window).width() < 520) {
+        $("#amnt" + rwNumber + " .bottom-arrow").css("left", $(this).position().left);
+    }
+    $(this).parents(".assessment").removeClass("not-expended").addClass("expended");
+});
+
+$(document).on("click", ".assessment.expended .info-popover .icon-question", function () {
+    rwNumber = $(this).attr("amntsl");
+    //$(this).parents(".expended").find(".mpover").fadeOut();
+    $("#amnt" + rwNumber).fadeOut();
+    $(this).parents(".assessment").removeClass("expended").addClass("not-expended");
+});
+
+$(document).on("click", ".assessment .mpover button.close,.assessment .mpover .help-link", function () {
+    rwNumber = $(this).attr("amntsl");
+    //$(this).parents(".assessment").find(".mpover").fadeOut();
+    $("#amnt" + rwNumber).fadeOut();
+    $(this).parents(".assessment").removeClass("expended").addClass("not-expended");
+});
+$(document).click(function (e) {
+    var container = $(".icon-question, .mpover");
+    if (!container.is(e.target) && container.has(e.target).length === 0) {
+        //hidinig code get by class name
+        $(".mpover").fadeOut();
+        $(".assessment").removeClass("expended").addClass("not-expended");
+    }
+});
+$(document).on("click", ".assessment2.not-expended .info-popover .icon-question", function () {
+    $(this).parents('div.assessment2').find(".mpover").fadeIn();
+    rwNumber = $(this).attr("amntss");
+
+    $("#amntt" + rwNumber).css("left", ($(this).position().left - 250) + "px").fadeIn();
+    if ($(window).width() < 520) {
+        $("#amntt" + rwNumber + " .bottom-arrow").css("left", $(this).position().left);
+    }
+    $(this).parents(".assessment2").removeClass("not-expended").addClass("expended");
+
+});
+
+$(document).on("click", ".assessment2 .mpover button.close", function () {
+	$(this).parents('div.assessment2.not-expended').find('.mpover').fadeOut();
+    $(this).parents(".assessment2").removeClass("expended").addClass("not-expended");
+});
+/*
+$(document).on("click", ".assessment2.not-expended .info-popover .icon-question", function () {
+    $(this).parents('div.assessment2').find(".mpover").fadeIn();
+    rwNumber = $(this).attr("amntss");
+
+    $("#amntt" + rwNumber).css("left", ($(this).position().left - 250) + "px").fadeIn();
+    if ($(window).width() < 520) {
+        $("#amntt" + rwNumber + " .bottom-arrow").css("left", $(this).position().left);
+    }
+    $(this).parents(".assessment2").removeClass("not-expended").addClass("expended");
+
+});
+
+$(document).on("click", ".assessment2 .mpover button.close", function () {
+	$(this).parents('div.assessment2.expended').find('.mpover').fadeOut();
+    $(this).parents(".assessment2").removeClass("expended").addClass("not-expended");
+});
+*/
+$(document).on('click', '.tab-content .pagination > li a', function(event){
+	//event.preventDefault();
+	$('html, body').animate({
+		scrollTop: $( $.attr(this, 'href') ).offset().top
+	}, 500);
+});
